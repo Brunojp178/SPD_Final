@@ -1,0 +1,75 @@
+import numpy as np
+import time
+from mpi4py import MPI
+import itertools
+
+def Main():
+    
+    # MPI var's.
+    comm = MPI.COMM_WORLD
+    nprocs = comm.Get_size()
+    rank = comm.Get_rank()
+
+    file_path = "D:\Workspace\Python\SPD\SPD_Final\DATA\GCF_000001735.4_TAIR10.1_genomic.fna"
+
+    # This is for when u copy and paste the path, so u don't have to do manually
+    file_path = file_path.replace("\\", "/")
+
+    # Rank 0 open the file and scatter it
+    if rank == 0:
+        f = open(file_path, 'r')
+        
+        # Using this to get the index of the last line on the file.
+        for last_line_i, l in enumerate(f):
+            pass
+
+        # Reset file reader buffer.
+        f.seek(0,0)
+
+        # Using the last index we calculate the interval that every process will be reading in the file
+        #  and send this var to all process
+        n = int(last_line_i)/nprocs
+        
+    n = comm.bcast(n, root=0)
+    
+    count_adenina = 0
+    count_guanina = 0
+    count_citosina = 0
+    count_timina = 0
+
+    interval_start = int(rank * n)
+    interval_end = int((rank + 1) * n)
+    # TODO remove ==========================================================================
+    print(interval_start, interval_end)
+    
+    for line in itertools.islice(f, interval_start, interval_end):
+
+        # Removing the metadata line and counting every nitrogenous bases
+        if line[0] != ">":
+            for i in line:
+                if i == "a" or i == "A":
+                    count_adenina += 1
+                elif i == "g" or i == "G":
+                    count_guanina += 1
+                elif i == "c" or i == "C":
+                    count_citosina += 1
+                elif i == "t" or i == "T":
+                    count_timina += 1
+
+    # TODO after count gatter all the counters in rank 0 and do the dictionary
+
+
+
+    # # Using dictionary to print
+    # results_dictionary = { "Adenina":count_adenina, "Guanina":count_guanina, "Citosina":count_citosina, "Timina":count_timina}
+
+    # print("Maior recorrência da base nitrogenada:", max(results_dictionary), results_dictionary.get(max(results_dictionary)))
+
+    
+
+if __name__ == "__main__":
+    # A system call de print do resultado é contabilizada no tempo total.
+    starting_time = time.time()
+    Main()
+    ending_time = time.time() - starting_time
+    print("Execution time: ", ending_time)

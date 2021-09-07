@@ -1,0 +1,45 @@
+import numpy as np
+import time
+from mpi4py import MPI
+
+def Main():
+    # TODO read the file and divide it
+
+    file_path = "D:\Workspace\Python\SPD\SPD_Final\DATA\GCF_000001735.4_TAIR10.1_genomic.fna"
+
+    # This is for when u copy and paste the path, so u don't have to do manually
+    file_path = file_path.replace("\\", "/")
+
+    f = open(file_path, 'r')
+
+    # Need to be syncronized
+    
+    # Using dictionary to print
+    results_dictionary = { "Adenina":0, "Guanina":0, "Citosina":0, "Timina":0}
+
+    # Using enumerate to get the index of each line (Gonna use it in the parallelism)
+    for count, line in enumerate(f):
+
+        # Removing the metadata line and counting every nitrogenous bases
+        if line[0] != ">":
+            for i in line:
+                if i == "a" or i == "A":
+                    results_dictionary["Adenina"] += 1
+                elif i == "g" or i == "G":
+                    results_dictionary["Guanina"] += 1
+                elif i == "c" or i == "C":
+                    results_dictionary["Citosina"] += 1
+                elif i == "t" or i == "T":
+                    results_dictionary["Timina"] += 1
+
+
+    print("Maior recorrência da base nitrogenada:", max(results_dictionary), results_dictionary.get(max(results_dictionary)))
+
+    
+
+if __name__ == "__main__":
+    # A system call de print do resultado é contabilizada no tempo total.
+    starting_time = time.time()
+    Main()
+    ending_time = time.time() - starting_time
+    print("Execution time: ", ending_time)
